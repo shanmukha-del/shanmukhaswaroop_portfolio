@@ -363,25 +363,27 @@ export const CinematicVideoScroller: React.FC = () => {
         }}
       />
 
-      {/* Video Buffer B */}
-      <video
-        ref={setRefB}
-        src={slotSrcB}
-        muted
-        playsInline
-        preload="auto"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100vw',
-          height: '100vh',
-          objectFit: 'cover',
-          display: 'block',
-          pointerEvents: 'none',
-          opacity: activeSlot === 'B' ? 1 : 0,
-          transition: 'opacity 0.35s ease-out'
-        }}
-      />
+      {/* Video Buffer B (rendered only when valid source is available) */}
+      {slotSrcB ? (
+        <video
+          ref={setRefB}
+          src={slotSrcB}
+          muted
+          playsInline
+          preload="auto"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            objectFit: 'cover',
+            display: 'block',
+            pointerEvents: 'none',
+            opacity: activeSlot === 'B' ? 1 : 0,
+            transition: 'opacity 0.35s ease-out'
+          }}
+        />
+      ) : null}
     </div>
   );
 };

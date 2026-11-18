@@ -181,11 +181,167 @@ html, body {
   text-transform: uppercase;
 }
 
+/* ========================================================================= */
+/* TEMPLE RUN-INSPIRED 3D WOODEN BUTTONS                                     */
+/* ========================================================================= */
+.wooden-plank-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.8rem;
+  background: 
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 2px, transparent 2px, transparent 4px),
+    linear-gradient(180deg, #5c3818 0%, #432612 45%, #2a1608 100%);
+  color: #fef3c7;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 -1px 1px rgba(255, 255, 255, 0.2);
+  border: 2px solid #8b5a2b;
+  border-bottom: 6px solid #1a0d05;
+  border-right: 3px solid #1a0d05;
+  border-radius: 6px;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.75),
+    inset 0 2px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  user-select: none;
+  transform-style: preserve-3d;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease, filter 0.18s ease;
+  animation: woodenPlankDrop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Metallic corner rivets & bracket braces */
+.wooden-plank-button::before,
+.wooden-plank-button::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #fef08a 0%, #ca8a04 60%, #713f12 100%);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.wooden-plank-button::before {
+  top: 4px;
+  left: 6px;
+}
+.wooden-plank-button::after {
+  top: 4px;
+  right: 6px;
+}
+
+.wooden-plank-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.12);
+  box-shadow: 
+    0 14px 30px rgba(0, 0, 0, 0.85),
+    0 0 20px rgba(202, 138, 4, 0.35),
+    inset 0 2px 2px rgba(255, 255, 255, 0.35);
+}
+
+.wooden-plank-button:active {
+  transform: translateY(4px);
+  border-bottom: 2px solid #1a0d05;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.9),
+    inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes woodenPlankDrop {
+  0% {
+    transform: translateY(-90px) rotateX(15deg) scale(0.95);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(12px) rotateX(-4deg) scale(1.02);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-5px) rotateX(2deg) scale(0.99);
+  }
+  100% {
+    transform: translateY(0) rotateX(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========================================================================= */
+/* TEMPLE RUN-INSPIRED 3D INFORMATION CARDS                                  */
+/* ========================================================================= */
+.adventure-3d-card {
+  position: relative;
+  background: 
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 3px, transparent 3px, transparent 6px),
+    linear-gradient(160deg, rgba(28, 22, 17, 0.94) 0%, rgba(17, 13, 10, 0.97) 100%);
+  border: 2px solid #8b5a2b;
+  border-bottom: 5px solid #130a04;
+  border-right: 3px solid #130a04;
+  border-radius: 8px;
+  padding: 1.4rem;
+  color: #fff;
+  box-shadow: 
+    0 18px 45px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  animation: cardDropBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.adventure-3d-card:hover {
+  transform: translateY(-5px) scale(1.015);
+  border-color: #d4af37;
+  box-shadow: 
+    0 24px 50px rgba(0, 0, 0, 0.9),
+    0 0 25px rgba(212, 175, 55, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+@keyframes cardDropBounce {
+  0% {
+    transform: translateY(-80px) scale(0.95);
+    opacity: 0;
+  }
+  65% {
+    transform: translateY(10px) scale(1.01);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-4px) scale(0.995);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Stagger entrance utility classes */
+.stagger-1 { animation-delay: 0.08s; }
+.stagger-2 { animation-delay: 0.16s; }
+.stagger-3 { animation-delay: 0.24s; }
+.stagger-4 { animation-delay: 0.32s; }
+.stagger-5 { animation-delay: 0.40s; }
+.stagger-6 { animation-delay: 0.48s; }
+
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
   .btn-runic {
     min-height: 44px; /* Touch target minimum */
     padding: 0.6rem 0.9rem;
     font-size: 0.78rem;
+  }
+  .wooden-plank-button {
+    min-height: 48px;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.85rem;
+  }
+  .adventure-3d-card {
+    padding: 1.1rem;
   }
 }
