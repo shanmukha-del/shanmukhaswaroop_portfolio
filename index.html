@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BEYOND THE BLOCKS — The Journey of K. Shanmukhaswaroop</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0a12'/><rect x='25' y='25' width='50' height='50' fill='%238a2be2'/></svg>" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.__METRICS__ = { paint: [], resources: [], webgl: null };
+      function captureAuditMetrics() {
+        try {
+          const p = performance.getEntriesByType('paint');
+          window.__METRICS__.paint = p.map(e => ({ name: e.name, startTime: Math.round(e.startTime * 100) / 100 }));
+          const r = performance.getEntriesByType('resource');
+          window.__METRICS__.resources = r.map(e => ({
+            file: e.name.split('/').pop(),
+            initiatorType: e.initiatorType,
+            duration: Math.round(e.duration * 100) / 100,
+            transferSize: e.transferSize,
+            encodedBodySize: e.encodedBodySize,
+            decodedBodySize: e.decodedBodySize
+          }));
+
+          const testCanvas = document.createElement('canvas');
+          const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+          if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            window.__METRICS__.webgl = {
+              version: gl.getParameter(gl.VERSION),
+              renderer: gl.getParameter(gl.RENDERER),
+              vendor: gl.getParameter(gl.VENDOR),
+              unmaskedRenderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'N/A',
+              unmaskedVendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'N/A',
+              maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE)
+            };
+          }
+
+          let el = document.getElementById('perf-audit-json');
+          if (!el) {
+            el = document.createElement('script');
+            el.id = 'perf-audit-json';
+            el.type = 'application/json';
+            document.body.appendChild(el);
+          }
+          el.textContent = JSON.stringify(window.__METRICS__, null, 2);
+        } catch (err) {}
+      }
+      window.addEventListener('load', () => {
+        captureAuditMetrics();
+        setTimeout(captureAuditMetrics, 50);
+        setTimeout(captureAuditMetrics, 200);
+      });
+    </script>
+  </body>
+</html>
