@@ -47,8 +47,8 @@ export const CinematicVideoScroller: React.FC = () => {
   const currentTimeRef = useRef<number>(chapterTime || 0);
   currentTimeRef.current = chapterTime || 0;
 
-  const isTransitioningChapterRef = useRef<boolean>(false);
-  const lastTouchYRef = useRef<number | null>(null);
+  const lastDispatchedSeekTimeRef = useRef<number>(-1);
+  const isTransitioningRef = useRef<boolean>(false);
 
   // Helper to initialize video element strictly paused
   const initVideo = (video: HTMLVideoElement | null, initialTime: number = 0) => {
@@ -87,7 +87,6 @@ export const CinematicVideoScroller: React.FC = () => {
           onFramePresented: (mediaTime) => {
             if (activeSlotRef.current === 'A') {
               currentTimeRef.current = mediaTime;
-              navigationStore.setChapterTime(mediaTime);
             }
           }
         });
@@ -110,7 +109,6 @@ export const CinematicVideoScroller: React.FC = () => {
           onFramePresented: (mediaTime) => {
             if (activeSlotRef.current === 'B') {
               currentTimeRef.current = mediaTime;
-              navigationStore.setChapterTime(mediaTime);
             }
           }
         });
@@ -152,198 +150,151 @@ export const CinematicVideoScroller: React.FC = () => {
     }
   }, [currentChapterIndex, chapterTime]);
 
-  // Unified Scroll & Touch Input Handler
+  // Synchronize Background Video with Real Page Scroll (Single requestAnimationFrame Scheduler)
   useEffect(() => {
-    const SECONDS_PER_PIXEL = 0.005; // 3000px scroll = 15s video
+    let rafId: number | null = null;
+    let isScheduled = false;
 
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const activeVideo = activeSlotRef.current === 'A' ? videoRefA.current : videoRefB.current;
-      const activeController = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
-      if (!activeVideo || !activeController) return;
+    const sectionIds = [
+      'chapter-0',
+      'chapter-1',
+      'chapter-2',
+      'chapter-3',
+      'chapter-4',
+      'chapter-5',
+      'chapter-6',
+      'chapter-7'
+    ];
 
-      activeVideo.pause(); // Strictly paused at all times
+    const syncScrollToVideo = () => {
+      isScheduled = false;
 
-      const delta = e.deltaY;
-      const prevTime = currentTimeRef.current;
-      const targetTime = prevTime + delta * SECONDS_PER_PIXEL;
-      const currentChapter = currentChapterRef.current;
+      const viewportHeight = window.innerHeight || 800;
+      const viewportMid = viewportHeight * 0.45;
 
-      // Handle forward boundary
-      if (targetTime >= 14.95) {
-        if (currentChapter < CHAPTERS.length - 1) {
-          if (!isTransitioningChapterRef.current) {
-            isTransitioningChapterRef.current = true;
-            navigationStore.navigateToChapter(currentChapter + 1, 0.0);
-            setTimeout(() => {
-              isTransitioningChapterRef.current = false;
-            }, 300);
+      let detectedChapter = currentChapterRef.current;
+      let detectedProgress = 0;
+      let foundActive = false;
+
+      // Check each section in document order
+      for (let i = 0; i < sectionIds.length; i++) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= viewportMid && rect.bottom > viewportMid) {
+            detectedChapter = i;
+            const scrollableDist = el.offsetHeight - viewportHeight;
+            if (scrollableDist > 0) {
+              detectedProgress = Math.max(0, Math.min(1, (-rect.top) / scrollableDist));
+            } else {
+              detectedProgress = Math.max(0, Math.min(1, (viewportMid - rect.top) / el.offsetHeight));
+            }
+            foundActive = true;
+            break;
           }
-          return;
-        } else {
-          // Clamp at end of final video
-          currentTimeRef.current = 15.0;
-          activeController.requestSeek(15.0);
-          return;
         }
       }
 
-      // Handle backward boundary
-      if (targetTime <= 0.05) {
-        if (currentChapter > 0) {
-          if (!isTransitioningChapterRef.current) {
-            isTransitioningChapterRef.current = true;
-            navigationStore.navigateToChapter(currentChapter - 1, 14.95);
-            setTimeout(() => {
-              isTransitioningChapterRef.current = false;
-            }, 300);
+      // If past the bottom of Chapter 7 (e.g. inside footer), lock to end of Chapter 7
+      if (!foundActive) {
+        const lastEl = document.getElementById('chapter-7');
+        if (lastEl) {
+          const lastRect = lastEl.getBoundingClientRect();
+          if (lastRect.bottom <= viewportMid) {
+            detectedChapter = 7;
+            detectedProgress = 1.0;
+            foundActive = true;
           }
-          return;
+        }
+      }
+
+      // If above Chapter 0, lock to start of Chapter 0
+      if (!foundActive) {
+        detectedChapter = 0;
+        detectedProgress = 0.0;
+      }
+
+      const targetVideoTime = Math.max(0, Math.min(15.0, detectedProgress * 15.0));
+
+      // Handle chapter transition if section changed
+      if (detectedChapter !== currentChapterRef.current && !isTransitioningRef.current) {
+        isTransitioningRef.current = true;
+        currentChapterRef.current = detectedChapter;
+
+        const nextChapter = CHAPTERS[detectedChapter] || CHAPTERS[0];
+        const targetUrl = resolveMediaUrl(nextChapter.src);
+        const nextSlot = activeSlotRef.current === 'A' ? 'B' : 'A';
+        const nextVideo = nextSlot === 'A' ? videoRefA.current : videoRefB.current;
+        const nextController = nextSlot === 'A' ? controllerRefA.current : controllerRefB.current;
+
+        if (nextSlot === 'A') {
+          setSlotSrcA(targetUrl);
         } else {
-          // Clamp at start of opening video
-          currentTimeRef.current = 0.0;
-          activeController.requestSeek(0.0);
-          return;
+          setSlotSrcB(targetUrl);
+        }
+
+        if (nextVideo) {
+          initVideo(nextVideo, targetVideoTime);
+          nextController?.requestSeek(targetVideoTime);
+        }
+
+        setActiveSlot(nextSlot);
+        navigationStore.navigateToChapter(detectedChapter, targetVideoTime);
+
+        setTimeout(() => {
+          isTransitioningRef.current = false;
+        }, 150);
+      } else {
+        // Coalesce seeks: seek if difference is >= 0.04s (approx 1 frame at 24fps) or at boundaries
+        const timeDiff = Math.abs(targetVideoTime - lastDispatchedSeekTimeRef.current);
+        const isBoundary = targetVideoTime <= 0.05 || targetVideoTime >= 14.95;
+
+        if (timeDiff >= 0.04 || isBoundary) {
+          lastDispatchedSeekTimeRef.current = targetVideoTime;
+          const activeController = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
+          activeController?.requestSeek(targetVideoTime);
         }
       }
-
-      // Normal within-chapter scrub
-      currentTimeRef.current = targetTime;
-      activeController.requestSeek(targetTime);
     };
 
-    // Mobile touch interaction
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        lastTouchYRef.current = e.touches[0].clientY;
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0 && lastTouchYRef.current !== null) {
-        e.preventDefault();
-        const activeVideo = activeSlotRef.current === 'A' ? videoRefA.current : videoRefB.current;
-        const activeController = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
-        if (!activeVideo || !activeController) return;
-
-        activeVideo.pause();
-
-        const currentY = e.touches[0].clientY;
-        const delta = (lastTouchYRef.current - currentY) * 1.5;
-        lastTouchYRef.current = currentY;
-
-        const prevTime = currentTimeRef.current;
-        const targetTime = prevTime + delta * SECONDS_PER_PIXEL;
-        const currentChapter = currentChapterRef.current;
-
-        if (targetTime >= 14.95 && currentChapter < CHAPTERS.length - 1) {
-          if (!isTransitioningChapterRef.current) {
-            isTransitioningChapterRef.current = true;
-            navigationStore.navigateToChapter(currentChapter + 1, 0.0);
-            setTimeout(() => {
-              isTransitioningChapterRef.current = false;
-            }, 300);
-          }
-          return;
-        }
-
-        if (targetTime <= 0.05 && currentChapter > 0) {
-          if (!isTransitioningChapterRef.current) {
-            isTransitioningChapterRef.current = true;
-            navigationStore.navigateToChapter(currentChapter - 1, 14.95);
-            setTimeout(() => {
-              isTransitioningChapterRef.current = false;
-            }, 300);
-          }
-          return;
-        }
-
-        const clamped = Math.min(Math.max(targetTime, 0), 15.0);
-        currentTimeRef.current = clamped;
-        activeController.requestSeek(clamped);
+    const handleScroll = () => {
+      if (!isScheduled) {
+        isScheduled = true;
+        rafId = window.requestAnimationFrame(syncScrollToVideo);
       }
     };
 
-    const handleTouchEnd = () => {
-      lastTouchYRef.current = null;
-    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
 
-    // Keyboard accessibility navigation
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const activeVideo = activeSlotRef.current === 'A' ? videoRefA.current : videoRefB.current;
-      const activeController = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
-      if (!activeVideo || !activeController) return;
-
-      if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
-        e.preventDefault();
-        activeVideo.pause();
-        const nextTime = currentTimeRef.current + 0.6;
-        if (nextTime >= 14.95 && currentChapterRef.current < CHAPTERS.length - 1) {
-          navigationStore.navigateToChapter(currentChapterRef.current + 1, 0.0);
-        } else {
-          const clamped = Math.min(nextTime, 15.0);
-          currentTimeRef.current = clamped;
-          activeController.requestSeek(clamped);
-        }
-      } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
-        e.preventDefault();
-        activeVideo.pause();
-        const prevTime = currentTimeRef.current - 0.6;
-        if (prevTime <= 0.05 && currentChapterRef.current > 0) {
-          navigationStore.navigateToChapter(currentChapterRef.current - 1, 14.95);
-        } else {
-          const clamped = Math.max(prevTime, 0.0);
-          currentTimeRef.current = clamped;
-          activeController.requestSeek(clamped);
-        }
-      } else if (e.key === 'm' || e.key === 'M') {
-        navigationStore.toggleMinimap();
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('keydown', handleKeyDown);
-
-    // Global verification hook
-    (window as any).__CINEMATIC_ENGINE__ = {
-      getCurrentChapter: () => currentChapterRef.current,
-      getCurrentTime: () => currentTimeRef.current,
-      getActiveSlot: () => activeSlotRef.current,
-      seekTo: (time: number) => {
-        const clamped = Math.min(Math.max(time, 0), 15.0);
-        currentTimeRef.current = clamped;
-        const ctrl = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
-        ctrl?.requestSeek(clamped);
-      },
-      jumpToChapter: (chapterIndex: number, time: number = 0) => {
-        navigationStore.navigateToChapter(chapterIndex, time);
-      }
-    };
+    // Initial sync
+    handleScroll();
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
     };
   }, []);
 
   return (
     <div
+      className="cinematic-video-background-layer"
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100dvh',
         zIndex: 0,
-        background: '#000000',
+        pointerEvents: 'none',
         overflow: 'hidden',
-        cursor: 'ns-resize'
+        backgroundColor: '#000000'
       }}
     >
-      {/* Video Buffer A */}
+      {/* Slot A Native Video */}
       <video
         ref={setRefA}
         src={slotSrcA}
@@ -353,17 +304,17 @@ export const CinematicVideoScroller: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           objectFit: 'cover',
-          display: 'block',
-          pointerEvents: 'none',
+          objectPosition: 'center',
           opacity: activeSlot === 'A' ? 1 : 0,
-          transition: 'opacity 0.35s ease-out'
+          transition: 'opacity 0.35s ease-in-out',
+          pointerEvents: 'none'
         }}
       />
 
-      {/* Video Buffer B (rendered only when valid source is available) */}
+      {/* Slot B Native Video */}
       {slotSrcB ? (
         <video
           ref={setRefB}
@@ -374,13 +325,13 @@ export const CinematicVideoScroller: React.FC = () => {
           style={{
             position: 'absolute',
             inset: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             objectFit: 'cover',
-            display: 'block',
-            pointerEvents: 'none',
+            objectPosition: 'center',
             opacity: activeSlot === 'B' ? 1 : 0,
-            transition: 'opacity 0.35s ease-out'
+            transition: 'opacity 0.35s ease-in-out',
+            pointerEvents: 'none'
           }}
         />
       ) : null}

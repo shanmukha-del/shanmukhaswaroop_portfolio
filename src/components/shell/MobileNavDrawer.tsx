@@ -27,6 +27,11 @@ export const MobileNavDrawer: React.FC = () => {
   const handleSelectChapter = (ch: number) => {
     navigationStore.navigateToChapter(ch, 0);
     navigationStore.setMobileMenuOpen(false);
+    const targetId = `chapter-${ch}`;
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
