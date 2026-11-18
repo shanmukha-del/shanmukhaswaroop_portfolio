@@ -356,6 +356,70 @@ body {
 /* ========================================================================= */
 /* NORMAL DOCUMENT-FLOW SECTIONS & HANGING CARDS                             */
 /* ========================================================================= */
+/* ========================================================================= */
+/* CLASSIC WINDOWS XP-INSPIRED POINTING HAND CURSOR                          */
+/* ========================================================================= */
+@media (hover: hover) and (pointer: fine) {
+  html, body, *, *::before, *::after {
+    cursor: url('/cursors/xp-hand-pointer.svg') 6 1, auto;
+  }
+
+  a, button, [role="button"], input[type="submit"], input[type="button"], select,
+  .wooden-plank-button, .adventure-3d-card, .btn-runic, [style*="cursor: pointer"], [style*="cursor:pointer"],
+  .clickable-card {
+    cursor: url('/cursors/xp-hand-pointer.svg') 6 1, pointer !important;
+  }
+
+  a:active, button:active, [role="button"]:active, .wooden-plank-button:active, .adventure-3d-card:active {
+    cursor: url('/cursors/xp-hand-click.svg') 6 1, pointer !important;
+  }
+
+  input[type="text"], input[type="email"], textarea {
+    cursor: text !important;
+  }
+}
+
+/* ========================================================================= */
+/* SEAMLESS CINEMATIC STAGES & SCROLL RUNWAYS                                */
+/* ========================================================================= */
+.cinematic-world-stage-runway {
+  position: relative;
+  width: 100%;
+  height: 240vh;
+  box-sizing: border-box;
+}
+
+.cinematic-sticky-stage {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 5rem 1.5rem 3rem 1.5rem;
+  z-index: 10;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .cinematic-world-stage-runway {
+    height: auto;
+    min-height: 100vh;
+  }
+  .cinematic-sticky-stage {
+    position: relative;
+    height: auto;
+    min-height: 100dvh;
+    padding: 4.5rem 1rem 3rem 1rem;
+    overflow: visible;
+  }
+}
+
 .world-document-section {
   position: relative;
   width: 100%;

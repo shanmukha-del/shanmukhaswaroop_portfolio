@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- Outer Black Shadow/Stroke -->
+  <path d="
+    M 6 1 L 9 1 L 9 2 L 10 2 L 10 11 L 11 11 L 12 11 L 13 11 L 14 11 L 15 11 L 15 12 L 16 12 L 17 12 L 18 12 L 18 13 L 19 13 L 20 13 L 20 18 L 19 18 L 19 22 L 18 22 L 18 24 L 17 24 L 17 25 L 15 25 L 15 28 L 8 28 L 8 25 L 5 25 L 5 20 L 4 20 L 4 15 L 5 15 L 5 13 L 6 13 Z
+  " fill="#000000"/>
+  <!-- White Glove Fill -->
+  <path d="
+    M 7 2 L 8 2 L 8 12 L 9 12 L 10 12 L 11 12 L 12 12 L 13 12 L 14 12 L 14 13 L 15 13 L 16 13 L 17 13 L 17 14 L 18 14 L 19 14 L 19 17 L 18 17 L 18 21 L 17 21 L 17 23 L 16 23 L 16 24 L 14 24 L 14 27 L 9 27 L 9 24 L 6 24 L 6 19 L 5 19 L 5 16 L 6 16 L 6 14 L 7 14 Z
+  " fill="#ffffff"/>
+  <!-- Inner Detail Lines (Finger separation and glove creases) -->
+  <!-- Index finger right edge shadow -->
+  <rect x="8" y="3" width="1" height="9" fill="#e2e8f0"/>
+  <!-- Middle finger divider -->
+  <line x1="13" y1="13" x2="13" y2="17" stroke="#000000" stroke-width="1"/>
+  <!-- Ring finger divider -->
+  <line x1="16" y1="14" x2="16" y2="18" stroke="#000000" stroke-width="1"/>
+  <!-- Pinky divider -->
+  <line x1="18" y1="15" x2="18" y2="18" stroke="#000000" stroke-width="1"/>
+  <!-- Thumb crease -->
+  <line x1="6" y1="19" x2="10" y2="19" stroke="#000000" stroke-width="1"/>
+  <!-- Glove Cuff accent -->
+  <line x1="9" y1="25" x2="14" y2="25" stroke="#334155" stroke-width="1"/>
+</svg>

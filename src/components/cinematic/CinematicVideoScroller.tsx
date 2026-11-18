@@ -50,6 +50,19 @@ export const CinematicVideoScroller: React.FC = () => {
   const lastDispatchedSeekTimeRef = useRef<number>(-1);
   const isTransitioningRef = useRef<boolean>(false);
 
+  // Prevent browser scroll restoration on fresh reload to guarantee pure black opening at scroll 0
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      const hasHashOrParam = window.location.hash || window.location.search.includes('chapter') || window.location.search.includes('section');
+      if (!hasHashOrParam) {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, []);
+
   // Helper to initialize video element strictly paused
   const initVideo = (video: HTMLVideoElement | null, initialTime: number = 0) => {
     if (!video) return;
@@ -119,7 +132,7 @@ export const CinematicVideoScroller: React.FC = () => {
     }
   }, []);
 
-  // Synchronize when currentChapterIndex or chapterTime changes via store
+  // Synchronize when currentChapterIndex or chapterTime changes via navigation store
   useEffect(() => {
     const chapter = CHAPTERS[currentChapterIndex] || CHAPTERS[0];
     const targetUrl = resolveMediaUrl(chapter.src);
@@ -170,37 +183,62 @@ export const CinematicVideoScroller: React.FC = () => {
       isScheduled = false;
 
       const viewportHeight = window.innerHeight || 800;
-      const viewportMid = viewportHeight * 0.45;
 
-      let detectedChapter = currentChapterRef.current;
+      // Special Case 1: At the very top of document (scrollY == 0), strictly lock Chapter 0 to 0.0s (pure black)
+      // Only when there is no pending target section parameter in URL
+      const hasTargetParam = typeof window !== 'undefined' && (
+        window.location.hash || 
+        window.location.search.includes('chapter=') || 
+        window.location.search.includes('section=')
+      );
+
+      if (window.scrollY <= 0 && (!hasTargetParam || currentChapterRef.current === 0)) {
+        if (currentChapterRef.current !== 0) {
+          navigationStore.navigateToChapter(0, 0.0);
+        }
+        const activeController = activeSlotRef.current === 'A' ? controllerRefA.current : controllerRefB.current;
+        lastDispatchedSeekTimeRef.current = 0.0;
+        activeController?.requestSeek(0.0);
+        return;
+      }
+
+      let detectedChapter = 0;
       let detectedProgress = 0;
       let foundActive = false;
 
-      // Check each section in document order
+      // Check each runway section in document order
       for (let i = 0; i < sectionIds.length; i++) {
         const el = document.getElementById(sectionIds[i]);
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= viewportMid && rect.bottom > viewportMid) {
+          const runway = el.offsetHeight - viewportHeight;
+
+          // A section is active while its top has reached viewport top and bottom has not passed viewport bottom
+          if (rect.top <= 0 && rect.bottom > 0) {
             detectedChapter = i;
-            const scrollableDist = el.offsetHeight - viewportHeight;
-            if (scrollableDist > 0) {
-              detectedProgress = Math.max(0, Math.min(1, (-rect.top) / scrollableDist));
+            if (runway > 0) {
+              detectedProgress = Math.max(0, Math.min(1.0, (-rect.top) / runway));
             } else {
-              detectedProgress = Math.max(0, Math.min(1, (viewportMid - rect.top) / el.offsetHeight));
+              detectedProgress = 0;
             }
+            foundActive = true;
+            break;
+          } else if (rect.top > 0 && i === 0) {
+            // Above Chapter 0
+            detectedChapter = 0;
+            detectedProgress = 0.0;
             foundActive = true;
             break;
           }
         }
       }
 
-      // If past the bottom of Chapter 7 (e.g. inside footer), lock to end of Chapter 7
+      // If scrolled past Chapter 7 into the footer, lock to final frame of Chapter 7
       if (!foundActive) {
         const lastEl = document.getElementById('chapter-7');
         if (lastEl) {
           const lastRect = lastEl.getBoundingClientRect();
-          if (lastRect.bottom <= viewportMid) {
+          if (lastRect.bottom <= viewportHeight) {
             detectedChapter = 7;
             detectedProgress = 1.0;
             foundActive = true;
@@ -208,12 +246,12 @@ export const CinematicVideoScroller: React.FC = () => {
         }
       }
 
-      // If above Chapter 0, lock to start of Chapter 0
       if (!foundActive) {
         detectedChapter = 0;
         detectedProgress = 0.0;
       }
 
+      // Calculate target timestamp across the full 15.0s timeline
       const targetVideoTime = Math.max(0, Math.min(15.0, detectedProgress * 15.0));
 
       // Handle chapter transition if section changed
@@ -243,9 +281,9 @@ export const CinematicVideoScroller: React.FC = () => {
 
         setTimeout(() => {
           isTransitioningRef.current = false;
-        }, 150);
+        }, 120);
       } else {
-        // Coalesce seeks: seek if difference is >= 0.04s (approx 1 frame at 24fps) or at boundaries
+        // Coalesce seeks: seek if time difference is >= 0.04s (approx 1 frame at 24fps) or at boundaries
         const timeDiff = Math.abs(targetVideoTime - lastDispatchedSeekTimeRef.current);
         const isBoundary = targetVideoTime <= 0.05 || targetVideoTime >= 14.95;
 
