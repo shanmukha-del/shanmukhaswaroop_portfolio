@@ -263,9 +263,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               <HangingAdventureCard
@@ -306,7 +306,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-1')} icon="⬅" delay={0.4}>
                 MAIN UNIVERSE
               </WoodenButton>
@@ -386,9 +393,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               <HangingAdventureCard
@@ -441,7 +448,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-2')} icon="⬅" delay={0.5}>
                 ORIGIN VILLAGE
               </WoodenButton>
@@ -521,9 +535,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               {WORLDS_DATA[2]?.projects?.map((proj, idx) => (
@@ -566,7 +580,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-3')} icon="⬅" delay={0.5}>
                 WORKSHOP
               </WoodenButton>
@@ -646,9 +667,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               {WORLDS_DATA[3]?.challenges?.map((c, idx) => (
@@ -689,7 +710,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-4')} icon="⬅" delay={0.5}>
                 PROJECT KINGDOM
               </WoodenButton>
@@ -769,9 +797,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               {WORLDS_DATA[4]?.achievements?.map((ach, idx) => (
@@ -811,7 +839,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-5')} icon="⬅" delay={0.5}>
                 TRIAL GROUNDS
               </WoodenButton>
@@ -891,9 +926,9 @@ export const RealmView: React.FC = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                gap: '1.4rem',
+                gap: isMobile ? '2.2rem 1.4rem' : '1.4rem',
                 width: '100%',
-                marginBottom: '2rem'
+                marginBottom: '2.5rem'
               }}
             >
               <HangingAdventureCard
@@ -954,7 +989,14 @@ export const RealmView: React.FC = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: isMobile ? '0.75rem' : '1rem',
+                justifyContent: 'center'
+              }}
+            >
               <WoodenButton onClick={() => scrollTo('chapter-6')} icon="⬅" delay={0.4}>
                 ACHIEVEMENT REALM
               </WoodenButton>
@@ -1113,12 +1155,15 @@ export const RealmView: React.FC = () => {
             style={{
               maxWidth: '560px',
               width: '100%',
+              maxHeight: '88dvh',
+              overflowY: 'auto',
+              boxSizing: 'border-box',
               background:
                 'repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 3px, transparent 3px, transparent 6px), linear-gradient(160deg, #1f1712 0%, #120d09 100%)',
               border: '2px solid #8b5a2b',
               borderBottom: '5px solid #130a04',
               borderRadius: '8px',
-              padding: '1.8rem',
+              padding: isMobile ? '1.25rem 1rem' : '1.8rem',
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(212, 175, 55, 0.25)',
               color: '#ffffff'
             }}

@@ -340,16 +340,32 @@ body {
 @media (max-width: 768px) {
   .btn-runic {
     min-height: 44px; /* Touch target minimum */
-    padding: 0.6rem 0.9rem;
-    font-size: 0.78rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.75rem;
   }
   .wooden-plank-button {
     min-height: 48px;
-    padding: 0.75rem 1.4rem;
-    font-size: 0.85rem;
+    padding: 0.7rem 1.15rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+    text-align: center;
+    gap: 0.45rem;
   }
   .adventure-3d-card {
-    padding: 1.1rem;
+    padding: 1.15rem 1rem;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 480px) {
+  .wooden-plank-button {
+    min-height: 46px;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -406,16 +422,29 @@ body {
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .cinematic-world-stage-runway {
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: 2rem;
+  }
+  #chapter-0.cinematic-world-stage-runway {
+    height: 220vh;
+    min-height: 220vh;
+    padding-bottom: 0;
+  }
+  #chapter-0 .cinematic-sticky-stage {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    padding: 0;
+    overflow: hidden;
   }
   .cinematic-sticky-stage {
     position: relative;
     height: auto;
     min-height: 100dvh;
-    padding: 4.5rem 1rem 3rem 1rem;
+    padding: calc(64px + env(safe-area-inset-top, 0px)) 1rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1rem;
     overflow: visible;
   }
 }

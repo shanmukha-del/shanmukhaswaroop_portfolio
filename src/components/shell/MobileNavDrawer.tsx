@@ -53,9 +53,11 @@ export const MobileNavDrawer: React.FC = () => {
         style={{
           width: '85%',
           maxWidth: '340px',
-          height: '100%',
+          height: '100dvh',
+          maxHeight: '100dvh',
+          boxSizing: 'border-box',
           overflowY: 'auto',
-          padding: '1.25rem',
+          padding: 'calc(1.25rem + env(safe-area-inset-top, 0px)) 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px)) 1.25rem',
           display: 'flex',
           flexDirection: 'column',
           gap: '1rem',

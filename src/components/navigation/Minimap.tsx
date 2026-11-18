@@ -50,6 +50,9 @@ export const Minimap: React.FC = () => {
         style={{
           width: '380px',
           maxWidth: '92vw',
+          maxHeight: '88dvh',
+          overflowY: 'auto',
+          boxSizing: 'border-box',
           padding: '1.5rem',
           background: 'rgba(10, 13, 26, 0.95)',
           border: '1px solid rgba(255, 255, 255, 0.15)',

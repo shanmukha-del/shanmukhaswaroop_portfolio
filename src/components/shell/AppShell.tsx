@@ -45,15 +45,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         <header
           style={{
             position: 'fixed',
-            top: deviceType === 'mobile' ? '0.75rem' : '1rem',
-            left: deviceType === 'mobile' ? '0.75rem' : '1.5rem',
-            right: deviceType === 'mobile' ? '0.75rem' : '1.5rem',
+            top: deviceType === 'mobile' ? 'calc(0.75rem + env(safe-area-inset-top, 0px))' : '1rem',
+            left: deviceType === 'mobile' ? 'calc(0.75rem + env(safe-area-inset-left, 0px))' : '1.5rem',
+            right: deviceType === 'mobile' ? 'calc(0.75rem + env(safe-area-inset-right, 0px))' : '1.5rem',
             height: deviceType === 'mobile' ? '46px' : '52px',
             zIndex: 30,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '0 1.2rem',
+            padding: deviceType === 'mobile' ? '0 0.85rem' : '0 1.2rem',
             background: 'rgba(15, 12, 10, 0.82)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
@@ -162,7 +162,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               }}
             >
               <span>🗺️</span>
-              <span>{isMinimapOpen ? 'CLOSE MAP' : 'MINIMAP (M)'}</span>
+              <span>{isMinimapOpen ? 'CLOSE' : deviceType === 'mobile' ? 'MAP' : 'MINIMAP (M)'}</span>
             </button>
 
             {/* Mobile Hamburger Button */}

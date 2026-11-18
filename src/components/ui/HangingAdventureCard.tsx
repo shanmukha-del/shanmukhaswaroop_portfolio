@@ -172,8 +172,10 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
           const velocity = currentY - lastScrollY;
           lastScrollY = currentY;
 
-          // Bounded inertial sway angle (max ±2.0 degrees)
-          const angle = Math.max(-2.0, Math.min(2.0, velocity * 0.06 * swayIntensity));
+          // Bounded inertial sway angle (max ±2.0 degrees on desktop, ±1.2 degrees on mobile)
+          const isMobileOrTouch = typeof window !== 'undefined' && (window.innerWidth < 768 || !window.matchMedia('(pointer: fine)').matches);
+          const maxSway = isMobileOrTouch ? 1.2 : 2.0;
+          const angle = Math.max(-maxSway, Math.min(maxSway, velocity * (isMobileOrTouch ? 0.035 : 0.06) * swayIntensity));
           scrollSwayRef.current = angle;
 
           if (cardAssemblyRef.current && !isSimulatingRef.current) {
@@ -221,8 +223,9 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
       <div
         className="hanging-overhead-beam"
         style={{
-          width: '92%',
-          maxWidth: '380px',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
           height: '10px',
           background: 'linear-gradient(180deg, #3d2617 0%, #1a0f08 100%)',
           border: '1px solid #8b5a2b',
@@ -232,7 +235,7 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
           position: 'relative',
           display: 'flex',
           justifyContent: 'space-between',
-          padding: '0 28px',
+          padding: '0 24px',
           zIndex: 3
         }}
       >
@@ -279,13 +282,14 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
         {/* Twin Forged Metal Chains */}
         <div
           style={{
-            width: '92%',
-            maxWidth: '380px',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
             height: '42px',
             position: 'relative',
             display: 'flex',
             justifyContent: 'space-between',
-            padding: '0 30px',
+            padding: '0 25px',
             pointerEvents: 'none'
           }}
         >
@@ -324,7 +328,7 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
             style={{
               position: 'absolute',
               top: '-5px',
-              left: '26px',
+              left: '22px',
               width: '14px',
               height: '7px',
               background: 'linear-gradient(180deg, #d4af37 0%, #8b5a2b 100%)',
@@ -337,7 +341,7 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
             style={{
               position: 'absolute',
               top: '-5px',
-              right: '26px',
+              right: '22px',
               width: '14px',
               height: '7px',
               background: 'linear-gradient(180deg, #d4af37 0%, #8b5a2b 100%)',
@@ -366,11 +370,12 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
                 <h3
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: '1.15rem',
+                    fontSize: 'clamp(1rem, 2.8vw, 1.15rem)',
                     fontWeight: 800,
                     letterSpacing: '0.06em',
                     color: '#fef3c7',
-                    textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+                    textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                    wordBreak: 'break-word'
                   }}
                 >
                   {title}
@@ -379,9 +384,10 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
                   <div
                     style={{
                       fontFamily: 'var(--font-mono)',
-                      fontSize: '0.72rem',
+                      fontSize: 'clamp(0.66rem, 2vw, 0.72rem)',
                       color: 'var(--text-secondary)',
-                      letterSpacing: '0.04em'
+                      letterSpacing: '0.04em',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {subtitle}
@@ -415,10 +421,11 @@ export const HangingAdventureCard: React.FC<HangingAdventureCardProps> = ({
           <div
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.86rem',
+              fontSize: 'clamp(0.82rem, 2.2vw, 0.86rem)',
               lineHeight: 1.6,
               color: '#cbd5e1',
-              textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+              wordBreak: 'break-word'
             }}
           >
             {children}
